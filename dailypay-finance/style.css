@@ -1389,3 +1389,240 @@ input:checked + .slider:before {
 .search-input {
     padding-left: 48px;
 }
+
+/* Premium Fintech UI Enhancements (PhonePe & Google Pay style) */
+
+/* Glowing Bank Card Container */
+.bank-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #31108c 50%, #4338ca 100%);
+    border-radius: var(--border-radius-lg);
+    padding: 22px;
+    color: white;
+    box-shadow: 0 16px 36px rgba(49, 16, 140, 0.35);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.bank-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.bank-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.bank-name {
+    font-weight: var(--font-weight-extrabold);
+    font-size: 1.1rem;
+    letter-spacing: -0.3px;
+    text-transform: uppercase;
+}
+.bank-logo-img {
+    height: 18px;
+    opacity: 0.9;
+}
+.bank-chip {
+    width: 32px;
+    height: 24px;
+    background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 14px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+.bank-card-number {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    font-family: monospace;
+}
+.bank-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.bank-holder-name {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+.bank-status-badge {
+    background-color: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Circular Actions Grid (PhonePe Home style) */
+.fintech-action-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 26px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 20px 14px;
+    box-shadow: var(--card-shadow);
+}
+.fintech-action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: var(--transition-bounce);
+}
+.fintech-action-item:hover {
+    transform: scale(1.05);
+}
+.fintech-action-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    color: white;
+    transition: var(--transition-bounce);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.fintech-action-item:hover .fintech-action-icon-circle {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
+}
+.fintech-action-icon-circle.primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+.fintech-action-icon-circle.success { background: linear-gradient(135deg, #34d399 0%, #059669 100%); }
+.fintech-action-icon-circle.warning { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+.fintech-action-icon-circle.error { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); }
+.fintech-action-icon-circle.info { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); }
+.fintech-action-icon-circle.purple { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+
+.fintech-action-label {
+    font-size: 0.76rem;
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* Statement Transaction Row (Paytm/Google Pay style) */
+.statement-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 10px;
+    transition: var(--transition-bounce);
+    cursor: pointer;
+}
+.statement-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-color-hover);
+    background-color: var(--bg-card-hover);
+}
+.statement-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--indigo-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-bold);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.statement-avatar.success {
+    background-color: rgba(52, 211, 153, 0.1);
+    color: #34d399;
+}
+.statement-details {
+    flex-grow: 1;
+    margin-left: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.statement-title {
+    font-weight: var(--font-weight-bold);
+    font-size: 0.92rem;
+    color: var(--text-primary);
+}
+.statement-meta {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.statement-value-col {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.statement-amount {
+    font-size: 1.05rem;
+    font-weight: var(--font-weight-extrabold);
+    color: var(--text-primary);
+}
+.statement-amount.debit { color: var(--text-primary); }
+.statement-amount.credit { color: #34d399; }
+.statement-status {
+    font-size: 0.65rem;
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+}
+.statement-status.success { color: #34d399; }
+.statement-status.pending { color: #fbbf24; }
+
+/* Bouncy success tick loader (GPay style) */
+.gpay-success-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(52, 211, 153, 0.1);
+    border: 3px solid #34d399;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #34d399;
+    animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.gpay-success-circle i {
+    width: 44px;
+    height: 44px;
+    animation: tickDraw 0.3s ease 0.4s forwards;
+    transform: scale(0);
+}
+
+@keyframes scaleUp {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes tickDraw {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}

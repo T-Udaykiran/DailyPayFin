@@ -630,10 +630,20 @@ export default function App() {
             {/* ROUTE 4: Customer Portal View */}
             {currentRoute === 'customer' && (
                 <View style={styles.mainWrapper}>
+                    {/* Custom PhonePe/GPay Header */}
                     <View style={styles.appHeader}>
-                        <Text style={styles.headerTitle}>Customer Dashboard</Text>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Image 
+                                source={{uri: currentUser?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop'}} 
+                                style={[styles.userAvatar, {width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: '#6366f1'}]}
+                            />
+                            <View style={{marginLeft: 10}}>
+                                <Text style={[styles.boldText, {fontSize: 14}]}>{currentUser?.name}</Text>
+                                <Text style={[styles.mutedText, {fontSize: 10, marginTop: 0}]}>+91 {currentUser?.phone}</Text>
+                            </View>
+                        </View>
                         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-                            <LogOut size={20} color="#f87171" />
+                            <LogOut size={18} color="#f87171" />
                         </TouchableOpacity>
                     </View>
 
@@ -655,36 +665,83 @@ export default function App() {
 
                             return (
                                 <View style={styles.tabContent}>
+                                    {/* Alert banner */}
                                     {paidToday ? (
-                                        <View style={[styles.statusBox, styles.statusBoxSuccess]}>
-                                            <CheckCircle size={24} color="#34d399" />
-                                            <Text style={styles.statusBoxText}>Today's repayment received! Thank you.</Text>
+                                        <View style={[styles.statusBox, styles.statusBoxSuccess, {borderColor: 'rgba(52, 211, 153, 0.2)', backgroundColor: 'rgba(52, 211, 153, 0.08)'}]}>
+                                            <CheckCircle size={20} color="#34d399" />
+                                            <Text style={[styles.statusBoxText, {color: '#e2e8f0'}]}>Installment Completed! Today's daily due has been settled.</Text>
                                         </View>
                                     ) : (
-                                        <View style={[styles.statusBox, styles.statusBoxWarning]}>
-                                            <AlertTriangle size={24} color="#fbbf24" />
-                                            <Text style={styles.statusBoxText}>Daily repayment of ₹{activeLoan.daily_repayment} is pending.</Text>
+                                        <View style={[styles.statusBox, styles.statusBoxWarning, {borderColor: 'rgba(251, 191, 36, 0.2)', backgroundColor: 'rgba(251, 191, 36, 0.08)'}]}>
+                                            <AlertTriangle size={20} color="#fbbf24" />
+                                            <Text style={[styles.statusBoxText, {color: '#e2e8f0'}]}>Daily due: ₹{activeLoan.daily_repayment} is pending.</Text>
                                         </View>
                                     )}
 
+                                    {/* GPay style Circular Quick Actions */}
+                                    <View style={styles.actionGridContainer}>
+                                        <TouchableOpacity style={styles.actionGridItem} onPress={() => Alert.alert('UPI Scanner', 'BharatPe Merchant QR Code scanner initialized.')}>
+                                            <View style={[styles.actionCircle, {backgroundColor: 'rgba(99, 102, 241, 0.15)'}]}>
+                                                <QrCode size={20} color="#818cf8" />
+                                            </View>
+                                            <Text style={styles.actionGridLabel}>Scan QR</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.actionGridItem} onPress={() => {
+                                            if (activeLoan) setCustPayAmount(activeLoan.daily_repayment.toString());
+                                        }}>
+                                            <View style={[styles.actionCircle, {backgroundColor: 'rgba(139, 92, 246, 0.15)'}]}>
+                                                <Wallet size={20} color="#a78bfa" />
+                                            </View>
+                                            <Text style={styles.actionGridLabel}>Repay Due</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.actionGridItem} onPress={() => Alert.alert('Account Details', 'Savings Account: HDFC Bank A/c ••••5102 (Active)')}>
+                                            <View style={[styles.actionCircle, {backgroundColor: 'rgba(52, 211, 153, 0.15)'}]}>
+                                                <BookOpen size={20} color="#34d399" />
+                                            </View>
+                                            <Text style={styles.actionGridLabel}>Passbook</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.actionGridItem} onPress={() => Alert.alert('Customer Support', 'Raising ticket... support agent will connect via WhatsApp.')}>
+                                            <View style={[styles.actionCircle, {backgroundColor: 'rgba(248, 113, 113, 0.15)'}]}>
+                                                <Phone size={20} color="#f87171" />
+                                            </View>
+                                            <Text style={styles.actionGridLabel}>Support</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    {/* PhonePe Mock Bank Card */}
+                                    <View style={styles.bankCard}>
+                                        <View style={styles.bankCardHeader}>
+                                            <Text style={styles.bankCardName}>HDFC BANK</Text>
+                                            <View style={styles.bankStatusBadge}>
+                                                <Text style={styles.bankStatusText}>✓ UPI ACTIVE</Text>
+                                            </View>
+                                        </View>
+                                        <View style={styles.bankCardChip}></View>
+                                        <Text style={styles.bankCardNumber}>•••• •••• •••• 5102</Text>
+                                        <View style={styles.bankCardFooter}>
+                                            <Text style={styles.bankCardHolder}>{currentUser.name}</Text>
+                                            <Text style={styles.bankCardSecondary}>PRIMARY ACCOUNT</Text>
+                                        </View>
+                                    </View>
+
                                     {/* Repayment desk */}
                                     <View style={styles.calcBox}>
-                                        <Text style={styles.calcTitle}>Installment Payment Desk</Text>
-                                        <Text style={styles.mutedText}>Enter amount and select payment method below:</Text>
+                                        <Text style={styles.calcTitle}>Daily Repayment Desk</Text>
+                                        <Text style={styles.mutedText}>Modify amount if you want to pay multiple installments in advance:</Text>
                                         
                                         <TextInput 
-                                            style={[styles.calcInput, {fontSize: 22, color: '#6366f1', textAlign: 'center'}]}
+                                            style={[styles.calcInput, {fontSize: 24, color: '#818cf8', fontWeight: 'bold', textAlign: 'center', marginVertical: 14, height: 50, backgroundColor: '#090a12'}]}
                                             keyboardType="numeric"
                                             value={custPayAmount}
                                             placeholder={`₹${activeLoan.daily_repayment}`}
                                             placeholderTextColor="#5e6475"
                                             onChangeText={setCustPayAmount}
                                         />
-
+ 
                                         <TouchableOpacity style={styles.btnPrimary} onPress={triggerCustomerRazorpay}>
-                                            <Text style={styles.btnText}>Pay via Razorpay Portal</Text>
+                                            <Text style={styles.btnText}>Pay via Razorpay Gateway</Text>
                                         </TouchableOpacity>
-
+ 
                                         <TouchableOpacity 
                                             style={[styles.btnSecondary, {marginTop: 10}]}
                                             onPress={() => processQuickUPIPayment(activeLoan.id)}
@@ -692,10 +749,10 @@ export default function App() {
                                             <Text style={styles.btnTextSec}>Scan & Pay (Quick UPI)</Text>
                                         </TouchableOpacity>
                                     </View>
-
+ 
                                     {/* Loan summary */}
-                                    <View style={styles.sectionBox}>
-                                        <Text style={styles.secTitle}>Loan Summary</Text>
+                                    <View style={[styles.sectionBox, {marginTop: 16}]}>
+                                        <Text style={styles.secTitle}>Active Loan Summary</Text>
                                         
                                         {/* Progress bar */}
                                         <View style={styles.progressLabelRow}>
@@ -703,31 +760,37 @@ export default function App() {
                                             <Text style={styles.mutedText}>₹{(activeLoan.loan_amount - activeLoan.remaining_balance).toLocaleString('en-IN')} repaid</Text>
                                         </View>
                                         <View style={styles.progressBarBg}>
-                                            <View style={[styles.progressBarFill, {width: `${paidPct}%`}]} />
+                                            <View style={[styles.progressBarFill, {width: `${paidPct}%`, backgroundColor: '#34d399'}]} />
                                         </View>
-
+ 
                                         <View style={styles.infoRow}>
                                             <Text style={styles.infoLabel}>Outstanding Balance:</Text>
-                                            <Text style={styles.infoValue}>₹{activeLoan.remaining_balance.toLocaleString('en-IN')}</Text>
+                                            <Text style={[styles.infoValue, {color: '#f87171', fontSize: 14}]}>₹{activeLoan.remaining_balance.toLocaleString('en-IN')}</Text>
                                         </View>
                                         <View style={styles.infoRow}>
                                             <Text style={styles.infoLabel}>Daily repayment:</Text>
-                                            <Text style={styles.infoValue}>₹{activeLoan.daily_repayment}</Text>
+                                            <Text style={styles.infoValue}>₹{activeLoan.daily_repayment} / day</Text>
                                         </View>
                                         <View style={styles.infoRow}>
                                             <Text style={styles.infoLabel}>Tenure remaining:</Text>
-                                            <Text style={styles.infoValue}>{activeLoan.remaining_days} days left</Text>
+                                            <Text style={[styles.infoValue, {color: '#fbbf24'}]}>{activeLoan.remaining_days} days left</Text>
                                         </View>
                                     </View>
-
-                                    {/* Payment timeline */}
-                                    <Text style={styles.secTitle}>Payment Timeline</Text>
+ 
+                                    {/* Payment timeline statements list */}
+                                    <Text style={styles.secTitle}>Recent Statements</Text>
                                     {payments.filter(p => p.loan_id === activeLoan.id).slice(0, 5).map((pay, idx) => (
-                                        <View key={idx} style={styles.paymentTimelineItem}>
-                                            <CircleDot size={16} color="#34d399" />
-                                            <View style={{marginLeft: 12}}>
-                                                <Text style={styles.boldText}>₹{pay.amount} paid</Text>
+                                        <View key={idx} style={styles.statementRowItem}>
+                                            <View style={styles.statementAvatarCircle}>
+                                                <Text style={styles.statementAvatarText}>₹</Text>
+                                            </View>
+                                            <View style={styles.statementDetailsBox}>
+                                                <Text style={styles.boldText}>Installment Repayment</Text>
                                                 <Text style={styles.mutedText}>{pay.payment_date} • Ref: {pay.transaction_ref.substring(0, 10)}</Text>
+                                            </View>
+                                            <View style={{alignItems: 'flex-end'}}>
+                                                <Text style={[styles.boldText, {color: '#34d399'}]}>+₹{pay.amount}</Text>
+                                                <Text style={[styles.badgeText, styles.badgeGreen, {fontSize: 8, marginTop: 4, paddingVertical: 1, paddingHorizontal: 4}]}>Success</Text>
                                             </View>
                                         </View>
                                     ))}
@@ -1592,5 +1655,128 @@ const styles = StyleSheet.create({
         fontSize: 13,
         marginTop: 6,
         textAlign: 'center',
+    },
+    
+    // GPay / PhonePe style Mobile UI components styling
+    actionGridContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#131627',
+        borderWidth: 1,
+        borderColor: '#1e233d',
+        borderRadius: 16,
+        padding: 14,
+        marginBottom: 16,
+    },
+    actionGridItem: {
+        alignItems: 'center',
+        width: '23%',
+    },
+    actionCircle: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    actionGridLabel: {
+        color: '#94a3b8',
+        fontSize: 10,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    bankCard: {
+        backgroundColor: '#16143c',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.06)',
+    },
+    bankCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    bankCardName: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 13,
+        letterSpacing: 0.5,
+    },
+    bankStatusBadge: {
+        backgroundColor: 'rgba(52, 211, 153, 0.15)',
+        paddingVertical: 2,
+        paddingHorizontal: 8,
+        borderRadius: 10,
+    },
+    bankStatusText: {
+        color: '#34d399',
+        fontSize: 8,
+        fontWeight: 'bold',
+    },
+    bankCardChip: {
+        width: 24,
+        height: 18,
+        backgroundColor: '#e0a910',
+        borderRadius: 3,
+        marginBottom: 8,
+    },
+    bankCardNumber: {
+        color: 'white',
+        fontSize: 15,
+        letterSpacing: 2,
+        fontFamily: 'System',
+        fontWeight: '600',
+        marginBottom: 10,
+    },
+    bankCardFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    bankCardHolder: {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 9,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+    },
+    bankCardSecondary: {
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 8,
+        fontWeight: '600',
+    },
+    statementRowItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#131627',
+        borderWidth: 1,
+        borderColor: '#1e233d',
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 8,
+    },
+    statementAvatarCircle: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(99,102,241,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    statementAvatarText: {
+        color: '#818cf8',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    statementDetailsBox: {
+        flex: 1,
+        marginLeft: 10,
+    },
+    userAvatar: {
+        backgroundColor: '#1e233d',
     }
 });

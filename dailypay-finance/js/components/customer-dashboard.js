@@ -55,19 +55,17 @@ window.renderCustomerDashboard = function() {
                 const date = new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
                 const time = new Date(p.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                 timelineHTML += `
-                    <div class="timeline-item">
-                        <div class="timeline-marker success"></div>
-                        <div class="timeline-content" style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <span class="timeline-time">${date} at ${time}</span>
-                                <div class="timeline-title">Repayment Installment Paid</div>
-                                <div class="timeline-desc">Receipt: ${p.receipt_number} • ${p.payment_method.toUpperCase()}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <strong style="color:var(--success); font-size:0.95rem;">₹${parseFloat(p.amount).toLocaleString('en-IN')}</strong>
-                                <br>
-                                <a href="javascript:void(0);" class="cust-view-receipt-link" data-loan-id="${activeLoan.id}" data-receipt="${p.receipt_number}" style="font-size:0.75rem; color:var(--primary); text-decoration:none; font-weight:600;">View Receipt</a>
-                            </div>
+                    <div class="statement-item cust-view-receipt-link" data-loan-id="${activeLoan.id}" data-receipt="${p.receipt_number}">
+                        <div class="statement-avatar success">
+                            <i data-lucide="arrow-down-left" style="width:20px; height:20px;"></i>
+                        </div>
+                        <div class="statement-details">
+                            <div class="statement-title">Installment Repayment</div>
+                            <div class="statement-meta">${date} • Receipt: ${p.receipt_number}</div>
+                        </div>
+                        <div class="statement-value-col">
+                            <div class="statement-amount credit">₹${parseFloat(p.amount).toLocaleString('en-IN')}</div>
+                            <div class="statement-status success">SUCCESS</div>
                         </div>
                     </div>
                 `;
@@ -75,115 +73,153 @@ window.renderCustomerDashboard = function() {
         }
 
         loanContentHTML = `
-            <!-- Payment Status alert card -->
+            <!-- Payment Status alert banner -->
             ${paidToday ? `
-                <div class="alert-banner" style="background-color: rgba(16, 172, 132, 0.08); border-color: rgba(16, 172, 132, 0.2); margin-bottom:16px;">
-                    <div class="alert-icon" style="background-color: rgba(16, 172, 132, 0.12); color: var(--success);">
+                <div class="alert-banner" style="background-color: rgba(52, 211, 153, 0.08); border-color: rgba(52, 211, 153, 0.2); margin-bottom:20px;">
+                    <div class="alert-icon" style="background-color: rgba(52, 211, 153, 0.12); color: #34d399;">
                         <i data-lucide="check-circle-2"></i>
                     </div>
                     <div class="alert-body">
-                        <h4 class="alert-title" style="color: var(--text-primary);">Today's Installment Received!</h4>
-                        <p class="alert-desc">Thank you! Your daily repayment of ₹${parseFloat(paymentToday.amount).toLocaleString('en-IN')} is successfully recorded.</p>
+                        <h4 class="alert-title" style="color: var(--text-primary);">Installment Completed!</h4>
+                        <p class="alert-desc">Today's daily due of ₹${parseFloat(paymentToday.amount).toLocaleString('en-IN')} has been settled successfully.</p>
                     </div>
                 </div>
             ` : `
-                <div class="alert-banner" style="margin-bottom:16px;">
-                    <div class="alert-icon">
-                        <i data-lucide="alert-triangle"></i>
+                <div class="alert-banner" style="background-color: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.2); margin-bottom:20px;">
+                    <div class="alert-icon" style="background-color: rgba(251, 191, 36, 0.12); color: #fbbf24;">
+                        <i data-lucide="clock"></i>
                     </div>
                     <div class="alert-body">
-                        <h4 class="alert-title">Repayment Due Today</h4>
-                        <p class="alert-desc">Your daily installment of ₹${parseFloat(activeLoan.daily_repayment).toLocaleString('en-IN')} is pending. Please pay below.</p>
+                        <h4 class="alert-title">Daily Repayment Pending</h4>
+                        <p class="alert-desc">Daily due: ₹${parseFloat(activeLoan.daily_repayment).toLocaleString('en-IN')} is pending. Tap below to clear it.</p>
                     </div>
                 </div>
             `}
 
-            <!-- Interactive Repayment Desk Card -->
-            <div class="content-box" style="margin-bottom: 24px;">
-                <h3 class="section-title" style="display:flex; align-items:center; gap:8px;">
-                    <i data-lucide="wallet" style="color:var(--primary);"></i> Repayment Desk
-                </h3>
-                <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:18px;">
-                    Make a quick payment. You can pay the exact daily due or input a custom prepayment amount to clear your loan early.
-                </p>
-                
-                <div style="display:grid; grid-template-columns:1fr; gap:20px;">
-                    <div style="background-color: var(--input-bg); padding:16px; border:1px solid var(--border-color); border-radius:var(--border-radius-md); display:flex; flex-direction:column; gap:12px;">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Payment Amount (₹)</label>
-                            <input type="number" id="cust-pay-amount" class="form-control" value="${activeLoan.daily_repayment}" min="10" max="${activeLoan.remaining_balance}" style="font-size:1.15rem; font-weight:700; color:var(--primary);">
-                        </div>
-                        <button class="btn btn-primary btn-block" id="customer-pay-now-trigger-btn" style="padding:12px; font-size:0.95rem;">
-                            <i data-lucide="shield-check"></i> Pay via Razorpay Gateway
-                        </button>
+            <!-- GPay / PhonePe Circular Actions Grid -->
+            <div class="fintech-action-grid">
+                <div class="fintech-action-item" id="act-scan-pay">
+                    <div class="fintech-action-icon-circle primary">
+                        <i data-lucide="qr-code"></i>
                     </div>
-
-                    <div style="background-color: var(--input-bg); padding:16px; border:1px solid var(--border-color); border-radius:var(--border-radius-md); display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px;">
-                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">UPI Quick Scan & Pay</span>
-                        
-                        <div class="upi-qr-image" style="width:110px; height:110px; margin:0;">
-                            <div style="width:100%; height:100%; border:2px solid var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; background-color:#fff;">
-                                <div style="width:20px; height:20px; background-color:var(--primary); border-radius:4px; z-index:2; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.6rem; font-weight:800;">DP</div>
-                                <div style="position:absolute; width:90px; height:90px; opacity:0.8; background-image: radial-gradient(var(--bg-primary) 1.5px, transparent 1.5px); background-size: 6px 6px;"></div>
-                            </div>
-                        </div>
-                        
-                        <span id="cust-upi-string" style="font-size:0.65rem; color:var(--text-muted); font-weight:600; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">upi://pay?pa=dailypay@icici&am=${activeLoan.daily_repayment}</span>
-                        
-                        <button class="btn btn-success btn-sm btn-block" id="customer-upi-scan-success-btn">
-                            Simulate UPI Scan Success
-                        </button>
+                    <span class="fintech-action-label">Scan QR</span>
+                </div>
+                <div class="fintech-action-item" id="act-repay">
+                    <div class="fintech-action-icon-circle purple">
+                        <i data-lucide="wallet"></i>
                     </div>
+                    <span class="fintech-action-label">Repay Due</span>
+                </div>
+                <div class="fintech-action-item" id="act-bank">
+                    <div class="fintech-action-icon-circle success">
+                        <i data-lucide="banknote"></i>
+                    </div>
+                    <span class="fintech-action-label">Passbook</span>
+                </div>
+                <div class="fintech-action-item" id="act-support">
+                    <div class="fintech-action-icon-circle error">
+                        <i data-lucide="help-circle"></i>
+                    </div>
+                    <span class="fintech-action-label">Support</span>
                 </div>
             </div>
 
-            <!-- Progress & Numbers Layout -->
             <div class="dashboard-layout">
-                <!-- Loan details numbers card -->
+                <!-- Left Column: Linked card and active repayment desk -->
                 <div>
+                    <!-- PhonePe Mock Linked Bank Card -->
+                    <div class="bank-card">
+                        <div class="bank-card-header">
+                            <span class="bank-name">HDFC BANK</span>
+                            <div class="bank-status-badge">
+                                <i data-lucide="shield-check" style="width:12px; height:12px;"></i> UPI ACTIVE
+                            </div>
+                        </div>
+                        <div class="bank-chip"></div>
+                        <div class="bank-card-number">•••• •••• •••• 5102</div>
+                        <div class="bank-card-footer">
+                            <span class="bank-holder-name">${currentUser.name}</span>
+                            <span style="font-size:0.6rem; letter-spacing:1px; opacity:0.8;">PRIMARY ACCOUNT</span>
+                        </div>
+                    </div>
+
+                    <!-- Repayment Desk Card -->
                     <div class="content-box">
-                        <h3 class="section-title">Active Loan Summary</h3>
+                        <h3 class="section-title" style="display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="credit-card" style="color:var(--indigo-primary);"></i> Daily Repayment Desk
+                        </h3>
+                        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:18px;">
+                            Repay your daily installment. You can modify the amount to pay in advance.
+                        </p>
                         
-                        <!-- Mini Gauge Visualizer -->
+                        <div style="background-color: var(--input-bg); padding:20px; border:1px solid var(--border-color); border-radius:var(--border-radius-md); display:flex; flex-direction:column; gap:16px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label" style="color: var(--text-muted); font-size:0.75rem;">Enter Repayment Amount (₹)</label>
+                                <input type="number" id="cust-pay-amount" class="form-control" value="${activeLoan.daily_repayment}" min="10" max="${activeLoan.remaining_balance}" style="font-size:1.6rem; font-weight:800; color:var(--indigo-primary); text-align:center; padding:10px; background-color:var(--bg-secondary);">
+                            </div>
+                            <button class="btn btn-primary btn-block" id="customer-pay-now-trigger-btn" style="padding:14px; font-size:1rem; border-radius:var(--border-radius-md);">
+                                <i data-lucide="shield-check"></i> Pay via Razorpay Gateway
+                            </button>
+                            
+                            <div style="border-top:1px solid var(--border-color); margin-top:6px; padding-top:16px; display:flex; flex-direction:column; align-items:center; gap:8px;">
+                                <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Or Scan BharatPe UPI QR Code</span>
+                                <div class="upi-qr-image" style="width:120px; height:120px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; background-color:#fff; border-radius:10px;">
+                                    <div style="width:24px; height:24px; background-color:var(--indigo-primary); border-radius:6px; z-index:2; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:800; position:absolute;">₹</div>
+                                    <div style="position:absolute; width:100px; height:100px; opacity:0.85; background-image: radial-gradient(#000 1.5px, transparent 1.5px); background-size: 6px 6px;"></div>
+                                </div>
+                                <span id="cust-upi-string" style="font-size:0.65rem; color:var(--text-muted); font-weight:600; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">upi://pay?pa=dailypay@icici&am=${activeLoan.daily_repayment}</span>
+                                <button class="btn btn-success btn-sm btn-block" id="customer-upi-scan-success-btn">
+                                    Simulate UPI App Scan Success
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Passbook Summary & Statements History -->
+                <div>
+                    <!-- Loan summary statistics card -->
+                    <div class="content-box">
+                        <h3 class="section-title">Installment Passbook</h3>
+                        
+                        <!-- Premium Progress Slider -->
                         <div style="background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding:20px; display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:20px;">
-                            <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Repayment Progress</span>
-                            <div style="font-size:2.2rem; font-weight:800; color:var(--primary); margin-top:8px;">${paidPct}%</div>
-                            <span style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">₹${paidAmount.toLocaleString('en-IN')} out of ₹${parseFloat(activeLoan.loan_amount).toLocaleString('en-IN')} Paid</span>
-                            <div class="progress-bar-container" style="max-width:300px; height:10px; margin-top:12px;">
-                                <div class="progress-bar-fill" style="width: ${paidPct}%;"></div>
+                            <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Repayment Progress</span>
+                            <div style="font-size:2.4rem; font-weight:800; color:#34d399; margin-top:8px;">${paidPct}%</div>
+                            <span style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">₹${paidAmount.toLocaleString('en-IN')} paid out of ₹${parseFloat(activeLoan.loan_amount).toLocaleString('en-IN')}</span>
+                            <div class="progress-bar-container" style="height:8px; margin-top:14px; background-color: var(--border-color);">
+                                <div class="progress-bar-fill" style="width: ${paidPct}%; background: linear-gradient(90deg, #6366f1 0%, #34d399 100%);"></div>
                             </div>
                         </div>
 
                         <div class="info-list">
                             <div class="info-list-item">
-                                <span class="info-label">Outstanding Principal Balance</span>
-                                <span class="info-value" style="color:var(--error); font-size:1.1rem;">₹${parseFloat(activeLoan.remaining_balance).toLocaleString('en-IN')}</span>
+                                <span class="info-label">Outstanding Balance</span>
+                                <span class="info-value" style="color:var(--error-hsl); font-size:1.1rem; font-weight:800;">₹${parseFloat(activeLoan.remaining_balance).toLocaleString('en-IN')}</span>
                             </div>
                             <div class="info-list-item">
-                                <span class="info-label">Daily Installment Due</span>
-                                <span class="info-value">₹${parseFloat(activeLoan.daily_repayment).toLocaleString('en-IN')}</span>
+                                <span class="info-label">Daily Repayment Due</span>
+                                <span class="info-value">₹${parseFloat(activeLoan.daily_repayment).toLocaleString('en-IN')} / day</span>
                             </div>
                             <div class="info-list-item">
-                                <span class="info-label">Repayment Tenure Remaining</span>
-                                <span class="info-value">${activeLoan.remaining_days} days left</span>
+                                <span class="info-label">Tenure Days Remaining</span>
+                                <span class="info-value" style="color:#fbbf24;">${activeLoan.remaining_days} days left</span>
                             </div>
                             <div class="info-list-item">
-                                <span class="info-label">Total Loan Tenure</span>
+                                <span class="info-label">Total Loan Term</span>
                                 <span class="info-value">${activeLoan.duration_days} days</span>
                             </div>
                             <div class="info-list-item">
-                                <span class="info-label">Disbursal Net Amount (Received)</span>
-                                <span class="info-value">₹${parseFloat(activeLoan.disbursed_amount).toLocaleString('en-IN')} (after 10% commission)</span>
+                                <span class="info-label">Principal Received (Net)</span>
+                                <span class="info-value">₹${parseFloat(activeLoan.disbursed_amount).toLocaleString('en-IN')} (Commission: 10%)</span>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Payment Timeline History -->
-                <div>
+                    <!-- Payment Timeline -->
                     <div class="content-box">
-                        <h3 class="section-title">My Payment Timeline</h3>
-                        <div class="timeline">
+                        <h3 class="section-title">Repayment Statements</h3>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
                             ${timelineHTML}
                         </div>
                     </div>
@@ -196,12 +232,21 @@ window.renderCustomerDashboard = function() {
     const kycBadge = currentUser.kyc_status === 'approved' ? 'badge-success' : 'badge-warning';
 
     return `
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">DailyPay Customer Portal</h1>
-                <p style="font-size:0.8rem; color:var(--text-secondary);">Welcome, ${currentUser.name}</p>
+        <!-- Custom GPay/PhonePe App Header -->
+        <div class="page-header" style="border-bottom:1px solid var(--border-color); padding-bottom:16px; margin-bottom:24px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <img class="user-avatar" src="${currentUser.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop'}" style="border-color: var(--indigo-primary); width:46px; height:46px;">
+                <div>
+                    <h1 class="page-title" style="font-size:1.35rem; margin-bottom:2px;">${currentUser.name}</h1>
+                    <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600;">+91 ${currentUser.phone}</span>
+                </div>
             </div>
-            <span class="badge ${kycBadge}">KYC ${currentUser.kyc_status}</span>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                <span class="badge ${kycBadge}">KYC ${currentUser.kyc_status}</span>
+                <div style="font-size:0.65rem; font-weight:600; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+                    <i data-lucide="shield-check" style="width:12px; height:12px; color:#34d399;"></i> DailyPay Secures
+                </div>
+            </div>
         </div>
 
         ${loanContentHTML}
@@ -220,7 +265,7 @@ window.renderCustomerDashboard = function() {
                 </div>
                 <div style="display:flex; justify-content:space-between;">
                     <span>Uploaded ID Proof:</span>
-                    <strong style="color:var(--primary);">${currentUser.id_proof_url || 'Verified_Aadhar_Doc.pdf'}</strong>
+                    <strong style="color:var(--indigo-primary);">${currentUser.id_proof_url || 'Verified_Aadhar_Doc.pdf'}</strong>
                 </div>
             </div>
         </div>
@@ -281,10 +326,10 @@ window.renderCustomerDashboard = function() {
                     <p style="font-size:0.8rem; color:#64748b; margin-top:6px;">Simulating Razorpay Payment Gateway integration. Please do not close this window.</p>
                 </div>
 
-                <!-- Simulating Payment Success screen -->
+                <!-- Simulating Payment Success screen (GPay Checkmark Style) -->
                 <div class="modal-body" style="padding:40px 20px; text-align:center; display:none; background-color:#ffffff;" id="rzp-success-body">
-                    <div style="width:56px; height:56px; border-radius:50%; background-color:#d1fae5; color:#10b981; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-                        <i data-lucide="check" style="width:32px; height:32px;"></i>
+                    <div class="gpay-success-circle">
+                        <i data-lucide="check"></i>
                     </div>
                     <h4 style="font-size:1.15rem; font-weight:700; color:#065f46;">Payment Successful!</h4>
                     <p style="font-size:0.8rem; color:#64748b; margin-top:6px;">Transaction ID: <span id="rzp-txn-id"></span></p>

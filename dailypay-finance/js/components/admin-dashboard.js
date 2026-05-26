@@ -100,7 +100,7 @@ window.renderAdminDashboard = function() {
     });
 
     return `
-        <div class="page-header">
+        <div class="page-header" style="margin-bottom: 20px;">
             <h1 class="page-title">Admin Dashboard</h1>
             <div class="btn-group">
                 <button class="btn btn-secondary btn-sm" onclick="window.location.hash='#/reports'">
@@ -109,6 +109,20 @@ window.renderAdminDashboard = function() {
                 <button class="btn btn-primary btn-sm" onclick="window.location.hash='#/loans'">
                     <i data-lucide="plus"></i> Disburse Loan
                 </button>
+            </div>
+        </div>
+
+        <!-- BharatPe-style Auto Settlement Bar -->
+        <div class="alert-banner" style="background-color: rgba(52, 211, 153, 0.05); border-color: rgba(52, 211, 153, 0.15); margin-bottom: 24px; padding: 12px 18px; border-radius: var(--border-radius-md); gap: 12px; box-shadow: none;">
+            <div class="alert-icon" style="background-color: rgba(52, 211, 153, 0.1); color: #34d399; width: 32px; height: 32px;">
+                <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+            </div>
+            <div class="alert-body" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <h4 class="alert-title" style="font-size:0.85rem; margin-bottom:1px;">Merchant Auto-Settlement Active</h4>
+                    <p class="alert-desc" style="font-size:0.75rem; color: var(--text-secondary);">Daily collections are automatically settled to **HDFC Bank A/c ••••5102** every night.</p>
+                </div>
+                <span class="badge badge-success" style="font-size:0.6rem; padding: 3px 8px;">Active</span>
             </div>
         </div>
 
