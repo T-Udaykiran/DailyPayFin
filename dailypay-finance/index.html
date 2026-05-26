@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DailyPay Finance - Daily Micro-Loan Collection</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- PWA Manifest & Mobile Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d0f1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Service Worker Register -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW Registered!', reg))
+                    .catch(err => console.log('SW Registration Failed:', err));
+            });
+        }
+    </script>
+</head>
+<body class="dark-theme">
+    <div id="app">
+        <!-- Main application view is rendered here by js/router.js -->
+        <div class="initial-loader">
+            <div class="loader-spinner"></div>
+            <p>Initializing DailyPay Finance...</p>
+        </div>
+    </div>
+
+    <!-- State and Database Engine -->
+    <script src="js/state.js"></script>
+    
+    <!-- UI Component Renderers -->
+    <script src="js/components/login.js"></script>
+    <script src="js/components/admin-dashboard.js"></script>
+    <script src="js/components/customer-mgmt.js"></script>
+    <script src="js/components/loan-mgmt.js"></script>
+    <script src="js/components/agent-dashboard.js"></script>
+    <script src="js/components/customer-dashboard.js"></script>
+    <script src="js/components/reports.js"></script>
+    
+    <!-- Application Router -->
+    <script src="js/router.js"></script>
+</body>
+</html>

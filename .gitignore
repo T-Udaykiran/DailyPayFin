@@ -1,0 +1,5 @@
+dailypay-expo/node_modules/
+dailypay-expo/.expo/
+.system_generated/
+scratch/
+*.log
