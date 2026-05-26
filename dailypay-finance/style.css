@@ -1626,3 +1626,155 @@ input:checked + .slider:before {
     0% { transform: scale(0); }
     100% { transform: scale(1); }
 }
+
+/* ==========================================================================
+   Mobile Responsive Layout Enhancements (PhonePe / GPay inspired)
+   ========================================================================== */
+
+/* Responsive Utility Classes */
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+@media (min-width: 769px) {
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+/* Responsive Headers */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .page-title {
+        font-size: 1.5rem;
+        line-height: 1.2;
+    }
+    .page-header .btn-group {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+    .page-header .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    .search-filter-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .search-filter-row .form-control {
+        width: 100% !important;
+    }
+}
+
+/* Mobile Card View styles for tables replacement */
+.customer-mobile-card, .loan-mobile-card, .log-mobile-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-bounce);
+}
+
+.customer-mobile-card:hover, .loan-mobile-card:hover, .log-mobile-card:hover {
+    border-color: var(--border-color-hover);
+    background-color: var(--bg-card-hover);
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.card-content-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.card-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.card-item-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-item-value {
+    font-size: 0.88rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+.card-action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 12px;
+}
+
+.card-action-row .btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    justify-content: center;
+}
+
+/* Extra Mobile Optimizations for Metrics and general layout */
+@media (max-width: 480px) {
+    .metrics-grid {
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .dashboard-card {
+        padding: 14px;
+    }
+    .card-value {
+        font-size: 1.3rem;
+    }
+    .card-title {
+        font-size: 0.72rem;
+    }
+    .card-icon-container {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 10px;
+    }
+    .card-icon-container i {
+        width: 18px;
+        height: 18px;
+    }
+    .fab {
+        bottom: 80px;
+        right: 16px;
+        width: 50px;
+        height: 50px;
+    }
+    .main-content {
+        padding: 20px 14px;
+    }
+}
+

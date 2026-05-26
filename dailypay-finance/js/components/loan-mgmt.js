@@ -12,6 +12,7 @@ window.renderLoanManagement = function(queryParams = {}) {
 
     // Active/All Loans List Rows
     let loanRowsHTML = '';
+    let loanCardsHTML = '';
     if (loans.length === 0) {
         loanRowsHTML = `
             <tr>
@@ -23,6 +24,13 @@ window.renderLoanManagement = function(queryParams = {}) {
                     </div>
                 </td>
             </tr>
+        `;
+        loanCardsHTML = `
+            <div class="empty-state" style="padding:40px 0;">
+                <i data-lucide="wallet"></i>
+                <h3 class="empty-state-title">No Active Loans</h3>
+                <p class="empty-state-desc">Fill out the loan calculator form to disburse your first loan.</p>
+            </div>
         `;
     } else {
         loans.forEach(loan => {
@@ -37,6 +45,7 @@ window.renderLoanManagement = function(queryParams = {}) {
             const paidAmount = loan.loan_amount - loan.remaining_balance;
             const paidPct = Math.round((paidAmount / loan.loan_amount) * 100);
 
+            // Desktop Row
             loanRowsHTML += `
                 <tr class="loan-row-item" data-id="${loan.id}" data-customer="${customer ? customer.name.toLowerCase() : ''}">
                     <td>
@@ -87,6 +96,61 @@ window.renderLoanManagement = function(queryParams = {}) {
                     </td>
                 </tr>
             `;
+
+            // Mobile Card
+            loanCardsHTML += `
+                <div class="loan-mobile-card loan-row-item" data-id="${loan.id}" data-customer="${customer ? customer.name.toLowerCase() : ''}">
+                    <div class="card-header-row">
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-weight:600; font-size:0.95rem;">${customer ? customer.name : 'Unknown Customer'}</span>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">ID: ${loan.id.substring(2, 8)}</span>
+                        </div>
+                        <span class="badge ${badgeClass}">${loan.status}</span>
+                    </div>
+                    
+                    <div class="card-content-grid">
+                        <div class="card-item">
+                            <span class="card-item-label">Principal</span>
+                            <span class="card-item-value" style="font-size:0.85rem;">₹${parseFloat(loan.loan_amount).toLocaleString('en-IN')}</span>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">Net: ₹${parseFloat(loan.disbursed_amount).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-item-label">Daily Due</span>
+                            <span class="card-item-value" style="font-size:0.85rem;">₹${parseFloat(loan.daily_repayment).toLocaleString('en-IN')}/day</span>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">${loan.duration_days} Days</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:4px; border-top:1px dashed var(--border-color); padding-top:8px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                            <span style="color:var(--text-secondary);">Repaid Progress:</span>
+                            <span style="font-weight:600; color:var(--indigo-primary);">${paidPct}% (${parseFloat(loan.loan_amount - loan.remaining_balance).toLocaleString('en-IN')} paid)</span>
+                        </div>
+                        <div class="progress-bar-container" style="margin:4px 0;">
+                            <div class="progress-bar-fill" style="width: ${paidPct}%;"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+                            <span>Bal: ₹${parseFloat(loan.remaining_balance).toLocaleString('en-IN')}</span>
+                            <span>${loan.remaining_days} days left</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:6px; border-top:1px dashed var(--border-color); padding-top:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">Agent:</span>
+                            <select class="form-control agent-reassign-select" data-loan-id="${loan.id}" style="padding:6px 10px; font-size:0.8rem; height:auto; width:auto; margin:0;">
+                                <option value="">Unassigned</option>
+                                ${agents.map(a => `<option value="${a.id}" ${loan.agent_id === a.id ? 'selected' : ''}>${a.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div style="display:flex; gap:6px; margin-top:4px;">
+                            <button class="btn btn-outline btn-sm status-toggle-btn" data-loan-id="${loan.id}" data-current-status="${loan.status}" style="width:100%; justify-content:center;">
+                                Toggle Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
         });
     }
 
@@ -107,12 +171,13 @@ window.renderLoanManagement = function(queryParams = {}) {
         <div class="dashboard-layout">
             <!-- Left Side: Active Loans List -->
             <div class="content-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                     <h3 class="section-title" style="margin-bottom:0;">Disbursed Loans Registry</h3>
                     <input type="text" id="loan-search" class="form-control" placeholder="Search by customer..." style="width:200px; padding:6px 12px; font-size:0.85rem;">
                 </div>
                 
-                <div class="table-responsive">
+                <!-- Table View (Desktop only) -->
+                <div class="table-responsive desktop-only">
                     <table class="fintech-table">
                         <thead>
                             <tr>
@@ -129,6 +194,11 @@ window.renderLoanManagement = function(queryParams = {}) {
                             ${loanRowsHTML}
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Cards View (Mobile only) -->
+                <div class="mobile-only" id="loan-cards-container" style="padding-bottom: 30px;">
+                    ${loanCardsHTML}
                 </div>
             </div>
 

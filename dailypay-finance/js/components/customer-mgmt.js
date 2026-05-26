@@ -5,6 +5,7 @@ window.renderCustomerManagement = function() {
     const customers = users.filter(u => u.role === 'customer');
 
     let customerRowsHTML = '';
+    let customerCardsHTML = '';
     if (customers.length === 0) {
         customerRowsHTML = `
             <tr>
@@ -17,12 +18,20 @@ window.renderCustomerManagement = function() {
                 </td>
             </tr>
         `;
+        customerCardsHTML = `
+            <div class="empty-state" style="padding: 40px 0;">
+                <i data-lucide="users"></i>
+                <h3 class="empty-state-title">No Customers Found</h3>
+                <p class="empty-state-desc">Click "Add Customer" to register a new client.</p>
+            </div>
+        `;
     } else {
         customers.forEach(cust => {
             const badgeClass = cust.kyc_status === 'approved' ? 'badge-success' 
                              : cust.kyc_status === 'pending' ? 'badge-warning' 
                              : 'badge-error';
             
+            // Desktop Row
             customerRowsHTML += `
                 <tr class="customer-row-item" data-id="${cust.id}" data-name="${cust.name.toLowerCase()}" data-phone="${cust.phone}">
                     <td>
@@ -53,6 +62,41 @@ window.renderCustomerManagement = function() {
                     </td>
                 </tr>
             `;
+
+            // Mobile Card
+            customerCardsHTML += `
+                <div class="customer-mobile-card customer-row-item" data-id="${cust.id}" data-name="${cust.name.toLowerCase()}" data-phone="${cust.phone}">
+                    <div class="card-header-row">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${cust.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop'}" alt="${cust.name}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                            <span style="font-weight: 600; font-size: 0.95rem;">${cust.name}</span>
+                        </div>
+                        <span class="badge ${badgeClass}">${cust.kyc_status}</span>
+                    </div>
+                    <div class="card-content-grid">
+                        <div class="card-item">
+                            <span class="card-item-label">Mobile</span>
+                            <span class="card-item-value">+91 ${cust.phone}</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-item-label">Join Date</span>
+                            <span class="card-item-value">${new Date(cust.created_at).toLocaleDateString('en-IN')}</span>
+                        </div>
+                    </div>
+                    <div class="card-item" style="border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                        <span class="card-item-label">Address</span>
+                        <span class="card-item-value" style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary);">${cust.address}</span>
+                    </div>
+                    <div class="card-action-row">
+                        <button class="btn btn-outline btn-sm kyc-toggle-btn" data-id="${cust.id}" data-status="${cust.kyc_status === 'approved' ? 'pending' : 'approved'}">
+                            Toggle KYC
+                        </button>
+                        <button class="btn btn-primary btn-sm create-loan-btn" data-id="${cust.id}">
+                            Disburse
+                        </button>
+                    </div>
+                </div>
+            `;
         } );
     }
 
@@ -73,8 +117,8 @@ window.renderCustomerManagement = function() {
                 </div>
             </div>
 
-            <!-- Table View -->
-            <div class="table-responsive">
+            <!-- Table View (Desktop only) -->
+            <div class="table-responsive desktop-only">
                 <table class="fintech-table">
                     <thead>
                         <tr>
@@ -89,6 +133,11 @@ window.renderCustomerManagement = function() {
                         ${customerRowsHTML}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Cards View (Mobile only) -->
+            <div class="mobile-only" id="customer-cards-container" style="padding-bottom: 60px;">
+                ${customerCardsHTML}
             </div>
         </div>
 

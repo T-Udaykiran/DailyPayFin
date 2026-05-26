@@ -6,11 +6,17 @@ window.renderReports = function() {
     
     // Generate Activity Logs HTML Rows
     let logsRowsHTML = '';
+    let logsCardsHTML = '';
     if (logs.length === 0) {
         logsRowsHTML = `
             <tr>
                 <td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">No activity recorded yet</td>
             </tr>
+        `;
+        logsCardsHTML = `
+            <div class="empty-state" style="padding:20px 0;">
+                <p class="empty-state-desc">No activity recorded yet</p>
+            </div>
         `;
     } else {
         logs.forEach(log => {
@@ -31,6 +37,7 @@ window.renderReports = function() {
                 .map(([k, v]) => `${k}: ${typeof v === 'number' ? '₹' + v.toLocaleString('en-IN') : v}`)
                 .join(', ');
 
+            // Desktop Row
             logsRowsHTML += `
                 <tr>
                     <td style="font-size:0.8rem; color:var(--text-muted);">${timestamp}</td>
@@ -49,6 +56,26 @@ window.renderReports = function() {
                         ${detailsStr}
                     </td>
                 </tr>
+            `;
+
+            // Mobile Card
+            logsCardsHTML += `
+                <div class="log-mobile-card">
+                    <div class="card-header-row" style="padding-bottom: 6px;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight: 500;">${timestamp}</span>
+                        <span class="badge ${getLogBadgeClass(log.action)}" style="font-size:0.65rem;">
+                            ${log.action.replace(/_/g, ' ')}
+                        </span>
+                    </div>
+                    <div class="card-item">
+                        <span class="card-item-label">Operator</span>
+                        <span class="card-item-value" style="font-size:0.85rem;">${userName} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(${userRole})</span></span>
+                    </div>
+                    <div class="card-item" style="border-top:1px dashed var(--border-color); padding-top:8px;">
+                        <span class="card-item-label">Details</span>
+                        <span class="card-item-value" style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary); line-height:1.3;">${detailsStr}</span>
+                    </div>
+                </div>
             `;
         });
     }
@@ -115,7 +142,9 @@ window.renderReports = function() {
                 <div class="content-box">
                     <h3 class="section-title">Security & Audit Activity Logs</h3>
                     <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px;">Recent system actions and events</p>
-                    <div class="table-responsive">
+                    
+                    <!-- Table View (Desktop only) -->
+                    <div class="table-responsive desktop-only">
                         <table class="fintech-table" style="font-size:0.8rem;">
                             <thead>
                                 <tr>
@@ -129,6 +158,11 @@ window.renderReports = function() {
                                 ${logsRowsHTML}
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Cards View (Mobile only) -->
+                    <div class="mobile-only" id="logs-cards-container" style="padding-bottom: 20px;">
+                        ${logsCardsHTML}
                     </div>
                 </div>
             </div>
